@@ -44,7 +44,7 @@ Este workspace contiene material completo para aprender Big Data con **Hadoop** 
 
 Los archivos de datos están hospedados en **Google Drive** debido a su tamaño (>650 MB total):
 
-**🔗 [Descargar Datasets E-commerce y MovieLens](https://drive.google.com/file/d/1AYd3PUi53Q7XynCg_7KKraUZYft3kjjo/view?usp=sharing)**
+**🔗 [Descargar Datasets E-commerce y MovieLens](https://drive.google.com/file/d/1AYd3PUi53Q7XynCg_7KKraUZYft3kjjo/view?usp=drive_link)**
 
 **Instrucciones:**
 1. Descargar el archivo desde el enlace de arriba
@@ -102,7 +102,7 @@ Material para aprender el ecosistema Hadoop (HDFS, MapReduce, Hive):
 | Archivo | Descripción | Tiempo |
 |---------|-------------|--------|
 | [Guia_CentOS_Hadoop_Hive.md](Hadoop/Guia_CentOS_Hadoop_Hive.md) | Instalación completa paso a paso (27 pasos) | 6-8h |
-| [Guia_Video_Instalacion_Hadoop.md](Hadoop/Guia_Video_Instalacion_Hadoop.md) | Guía condensada para video tutorial (20-30 min) con explicaciones detalladas de comandos bash, XMLs y archivos .env | 2-3h |
+| [Guia_Video_Instalacion_Hadoop.md](Hadoop/Guia_Video_Instalacion_Hadoop.md) | 🎬 **Guía para video tutorial** (20-30 min) con explicaciones detalladas de comandos bash, XMLs y archivos .env | 2-3h |
 | [Explicacion_Archivos_Configuracion_Hadoop.md](Hadoop/Explicacion_Archivos_Configuracion_Hadoop.md) | Explicación de XMLs: core-site, hdfs-site, mapred-site, yarn-site | 4-5h |
 | [Comandos_Hadoop_Explicados.md](Hadoop/Comandos_Hadoop_Explicados.md) | Referencia de comandos HDFS, YARN, Hive | 3-4h |
 | [Practica_Hadoop_Hive_MovieLens.md](Hadoop/Practica_Hadoop_Hive_MovieLens.md) | Práctica avanzada con 100K registros reales | 5-6h |
@@ -200,7 +200,23 @@ Material para aprender Apache Spark y compararlo con Pandas:
 
 ---
 
-## 🎯 Ruta de Aprendizaje
+## � Guía Rápida para Video Tutorial
+
+¿Quieres crear un video explicando la instalación de Hadoop?
+
+👉 **[Guia_Video_Instalacion_Hadoop.md](Hadoop/Guia_Video_Instalacion_Hadoop.md)**
+
+Esta guía condensada incluye:
+- ✅ Pasos resumidos para video de 20-30 minutos
+- ✅ Explicaciones detalladas de **cada comando bash**
+- ✅ Descripción completa de **archivos XML** (core-site, hdfs-site, mapred-site, yarn-site, hive-site)
+- ✅ Variables de entorno **.bashrc y archivos *-env.sh**
+- ✅ Tips para grabar y segmentar el video
+- ✅ Checklist de verificación final
+
+---
+
+## �🎯 Ruta de Aprendizaje
 
 ### **Semanas 1-3: Módulo Hadoop**
 
