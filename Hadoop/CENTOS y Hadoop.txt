@@ -1,0 +1,1042 @@
+﻿📖 Guía de Instalación: CentOS y Hadoop
+Asignatura: Sistemas Inteligentes
+Objetivo: Configurar un entorno base en CentOS para la posterior implementación de 
+Hadoop.
+ 
+🛠 1. Requisitos Previos y Descargas
+Antes de comenzar, asegúrate de contar con las siguientes herramientas:
+•	Máquina Virtual (Imagen de disco): https://www.osboxes.org/centos/#centos-10-
+info
+•	Software de Virtualización: https://www.virtualbox.org/wiki/Downloads
+Configuración Inicial
+1.	Descomprimir la unidad de máquina virtual descargada (Centos-10-info).
+2.	Abrir VirtualBox y crear una nueva máquina virtual seleccionando la opción "Usar un 
+archivo de disco duro virtual existente".
+3.	Configuración de Red: En la sección de Red, selecciona Conector NAT o Adaptador 
+Puente.
+4.	Credenciales por defecto:
+o	Usuario: osboxes
+o	Password: osboxes.org
+ 
+🌐 2. Configuración de Red y Actualización
+Una vez iniciada la sesión, es fundamental actualizar el sistema.
+Comando de actualización:
+sudo yum update
+o bien
+sudo dnf update
+
+
+
+
+Solución de problemas de conexión (Si no hay internet):
+Paso 1: Prueba de conexión básica
+ping -c 4 8.8.8.8
+
+Si recibes "Network is unreachable", tu tarjeta de red está apagada.
+Paso 2: Identificar y levantar la interfaz
+1.	Revisa el nombre de tu tarjeta (ej. enp0s3):
+ip addr
+2.	Actívala manualmente:
+sudo nmcli device connect enp0s3
+ o bien
+sudo ip link set enp0s3 up
+
+Paso 3: Configurar inicio automático (NMTUI)
+1.	Ejecuta: sudo nmtui
+2.	Ve a Edit a connection > Selecciona tu interfaz > Edit.
+3.	Marca con una [X] la opción Automatically connect.
+4.	Selecciona OK, luego Back y Quit.
+Paso 4: Solicitar IP
+sudo dhclient
+
+ 
+🖥 3. Instalación de Interfaz Gráfica (GUI)
+Si prefieres trabajar con ventanas en lugar de solo terminal:
+1.	Instalar paquetes de GNOME:
+sudo dnf groupinstall "Server with GUI"
+
+(Nota: Pesa entre 800MB y 1GB).
+
+2.	Cambiar el arranque a modo gráfico:
+Verificar modo actual
+systemctl get-default
+Cambiar a modo gráfico
+sudo systemctl set-default graphical.target
+3.	Iniciar ahora (sin reiniciar):
+sudo systemctl start graphical.target
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+📦 4. Instalación de VirtualBox Guest Additions
+Esto permite mejorar la resolución de pantalla y compartir carpetas.
+Paso A: Preparar Dependencias
+sudo dnf install -y epel-release  
+sudo dnf install -y gcc make perl kernel-devel kernel-headers 
+bzip2
+
+Importante: Actualiza el kernel para que coincida con las cabeceras: sudo dnf update kernel-
+*. Si se actualiza, reinicia la VM antes de seguir.
+Paso B: Montaje e Instalación
+1.	En el menú de VirtualBox: Dispositivos > Insertar imagen de CD de las "Guest 
+Additions".
+2.	En la terminal de CentOS:
+Crear punto de montaje
+sudo mkdir -p /mnt/cdrom
+Montar CD
+sudo mount /dev/cdrom /mnt/cdrom
+Ejecutar instalador
+cd /mnt/cdrom 
+sudo ./VBoxLinuxAdditions.run
+3.	Reiniciar: 
+sudo reboot
+ 
+
+
+
+
+
+
+
+⚠️ Solución de Errores Comunes
+Si la instalación de las Guest Additions falla, ejecuta estos comandos de refuerzo:
+Instalar herramientas de desarrollo y kernel
+sudo dnf groupinstall "Development Tools" && sudo dnf install 
+kernel-devel dkms
+Instalar módulos específicos
+sudo dnf install centos-release-kmods 
+sudo dnf install virtualbox-guest-additions
+Habilitar el servicio
+sudo systemctl enable vboxservice 
+sudo systemctl start vboxservice
+
+ 
+💡 Tip de estudio: Asegúrate siempre de tener snapshots (instantáneas) en VirtualBox antes 
+de realizar cambios críticos para poder volver atrás si algo falla.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HADOOP
+Esta es la continuación de tu guía de estudio, integrando los pasos del tutorial de 
+configuración de Hadoop en modo Pseudo-distribuido sobre CentOS. 
+Se basa en la guía de la playlist de videos Big Data Hadoop Español 🔥🔥 [CURSO 
+COMPLETO]  https://www.youtube.com/playlist?list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B
+Esta guía inicia en el video número 5.
+ 
+1. Instalación de paquetes (Video #5) 
+https://www.youtube.com/watch?v=49f8rpFV8BY&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=5
+sudo yum install net-tools
+
+ 
+Obtener la ip de nuestra máquina virtual
+ifconfig
+
+
+
+
+Instalación wget (descargas de archivos de internet desde la terminal)
+yum install wget
+
+
+Instalacion de telnet
+yum install telnet
+
+
+
+
+
+2. Crear el usuario y la contraseña (Video #6)  
+https://www.youtube.com/watch?v=B9x3v4fD-4E&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=6
+•	Crear el usuario: Abre tu terminal y ejecuta el siguiente comando como 
+superusuario:
+      sudo useradd hadoop
+
+
+•	Asignar la contraseña: El sistema te pedirá que ingreses la contraseña y que la 
+confirmes.
+Nota: Por seguridad, los caracteres no se verán mientras escribes.
+      sudo passwd hadoop
+
+
+•	Darle permisos de administrador (Opcional pero NO recomendado): Para que el 
+usuario hadoop pueda instalar paquetes o modificar archivos del sistema, es útil 
+añadirlo al grupo de wheel (sudoers):
+      sudo usermod -aG wheel hadoop
+
+2.1 Crear la carpeta y asignar permisos
+Ejecuta estos comandos uno por uno. El comando chown es el más importante, ya que 
+cambia el "dueño" de la carpeta de root al usuario que creamos antes.
+1. Crear la carpeta en /opt
+mkdir /opt/hadoop
+
+2. Cambiar el dueño al usuario 'hadoop' y al grupo 'hadoop'
+La opción -R es por si luego metes archivos dentro, los cambie todos
+chown -R hadoop:hadoop /opt/hadoop
+
+3. Dar permisos de lectura, escritura y ejecución al dueño (opcional)
+chmod -R 755 /opt/hadoop
+2.3 Cambiar de Root a Hadoop
+Para saltar de la cuenta de superusuario al entorno del usuario hadoop, utiliza el comando su 
+(substitute user) con el guion -.
+Tip: El guion - es vital porque carga las variables de entorno y el perfil del usuario, situándote 
+directamente en su carpeta /home/hadoop.
+su - hadoop
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. Instalación de Java 8 OpenJDK (Video #7) 
+https://www.youtube.com/watch?v=1rpJHLYim_k&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=7
+Descargar desde la página (te debes de registrar para su descarga)
+https://www.oracle.com/latam/java/technologies/javase/javase8-archive-downloads.html
+
+
+
+
+
+
+
+3.1. Mover y Descomprimir
+1. Mover el archivo a /opt (si no estás ahí)
+Cuando se descargue en la carpeta Downloads debes de mover el archivo jdk-8u202-linux-
+x64.tar.gz a la ruta /opt/ para esto ejecuta el siguiente comando:
+ sudo mv /home/hadoop/Downloads/jdk-8u202-linux-x64.tar.gz /opt/
+
+
+
+
+
+2. Entrar a la carpeta
+cd /opt/
+
+
+3. Descomprimir el archivo
+tar -zxvf jdk-8u202-linux-x64.tar.gz
+
+
+3.2 Verificar la carpeta resultante
+Tras descomprimir, verás una nueva carpeta llamada jdk1.8.0_202. Puedes verla con:
+ls -l /opt/
+
+3.3 (Opcional) Limpieza y Permisos
+Una vez extraído, el archivo .tar.gz ya no es necesario y ocupa espacio. Además, debemos 
+asegurarnos de que el usuario hadoop pueda usarlo:
+Dar permisos al usuario hadoop sobre la carpeta de Java
+chown -R hadoop:hadoop /opt/jdk1.8.0_202
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4. Registrar el JDK en el sistema de alternativas (Video #8) 
+https://www.youtube.com/watch?v=fNKL7IZs0LA&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=8
+Este comando le dice a CentOS: "Aquí hay un nuevo ejecutable de Java disponible".
+Registrar 'java'
+alternatives --install /usr/bin/java java 
+/opt/jdk1.8.0_202/bin/java 2
+
+Configurarlo
+alternatives –config java
+
+
+Selecciona la instalación marcada en la ruta /opt/jdk1.8.0_202/bin/java
+
+
+
+
+Registrar 'jar' 
+alternatives --install /usr/bin/jar jar /opt/jdk1.8.0_202/bin/jar 
+2
+
+Registrar 'javac' (el compilador, necesario para Hadoop)
+alternatives --install /usr/bin/javac javac 
+/opt/jdk1.8.0_202/bin/javac 2
+Revisa que tengfas instalado java y javac con los comandos
+java -version 
+javac -version
+
+
+5. Configurar JAVA_HOME (Video #9) 
+https://www.youtube.com/watch?v=0VPMiQifwfo&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=9
+Cambiar al usuario hadoop
+su hadoop
+
+
+Ir al home del usuario hadoop
+cd /home/hadoop/
+
+
+Editar el archivo .bashrc
+nano .bashrc
+
+
+Al final del archivo agregar las siguientes líneas de código 
+
+export JAVA_HOME=/opt/jdk1.8.0_202 
+export JRE_HOME=/opt/jdk1.8.0_202/jre 
+export PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+
+
+
+
+
+
+Recargar las variables locales de usuario con el siguiente comando:
+source /home/hadoop/.bashrc
+
+
+6. Descargando Hadoop  (video #10)  
+https://www.youtube.com/watch?v=wi_DoY8jirI&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=10
+Se utiliza la versión 3.4.0 (NO la usada en el video)
+Se entra a la carpeta hadoop en la ruta /opt/hadoop/
+cd /opt/hadoop/
+
+
+Descargarlo con wget (si te aparece un error de "comando no encontrado", instala wget 
+primero con yum install -y wget).
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-
+3.4.0.tar.gz
+
+Descargado
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7. Descompresión y Limpieza (Video #11) https://www.youtube.com/watch?v=d3k-
+LZQgPoI&list=PLG1t8jaLbxA_DG_cmlBYgkGW-TZw5DP3B&index=11
+Ahora vamos a extraer el contenido. Recuerda que anteriormente creamos una carpeta 
+llamada /opt/hadoop, pero el comando tar creará una carpeta llamada hadoop-3.4.0. Vamos 
+a unificar eso:
+Descomprimir
+tar -zxvf hadoop-3.4.0.tar.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8. Configurando las variables de ambiente para Hadoop (Video #12) 
+https://www.youtube.com/watch?v=8jEmG80fG8U&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=12
+Ir al home del usuario hadoop
+cd /home/hadoop/
+
+
+Editar el archivo .bashrc
+nano .bashrc
+
+
+Al final del archivo agregar las siguientes líneas de código 
+
+export HADOOP_HOME=/opt/hadoop/hadoop-3.4.0 
+$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+
+
+
+
+
+
+
+Recargar las variables locales de usuario con el siguiente comando:
+source /home/hadoop/.bashrc
+
+Revisar la version de hadoop:
+hadoop version
+
+
+9. Cambiando el hostname a CentOS7 (Video #14) 
+https://www.youtube.com/watch?v=tYBytDlwWIQ&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=14
+Ejecuta el siguiente comando para renombrar la máquina a nodo1:
+nano /etc/hosts
+
+
+Actualizar el archivo de hosts
+Este paso es el más importante para Hadoop. Debes decirle al sistema que el nombre nodo1 
+corresponde a tu dirección IP local. De lo contrario, los servicios de Hadoop no sabrán dónde 
+"escuchar".
+Edita el archivo /etc/hosts:
+Añade (o modifica) la línea para que quede así (puedes usar tu IP estática o la IP de bucle 
+invertido):
+127.0.0.1   localhost nodo1 
+::1         localhost nodo1 
+10.0.2.15 nodo1
+
+Tienes que cambiar por la ip que te asigne tu máquina virtual con el comando ifconfig
+
+Para que quede el nombre asignado al hostname ejecutar:
+nmcli general hostname nodo1
+
+
+Revisar que se asignó el nombre correcto: 
+
+hostname
+
+
+10. Configurando core-site.xml de Hadoop (Video 16) 
+https://www.youtube.com/watch?v=rvloXElUp2w&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=16
+El archivo core-site.xml es el corazón de la configuración de Hadoop. Aquí es donde le 
+indicamos al sistema cuál es el nodo maestro (NameNode) y dónde debe escribir los 
+archivos temporales.
+Como ya cambiaste el hostname a nodo1, usaremos ese nombre para la configuración. Sigue 
+estos pasos como usuario hadoop:
+ 
+10.1 Editar el archivo
+Abre el archivo con tu editor preferido (asegúrate de estar como usuario hadoop para no tener 
+problemas de permisos luego):
+vi /opt/hadoop/etc/hadoop/Hadoop-3.4.0/etc/core-site.xml
+
+10.2 Agregar la configuración
+Busca las etiquetas <configuration></configuration> y pega el siguiente contenido entre ellas. 
+Si están vacías, debería verse así:
+<configuration> 
+        <property> 
+                <name>fs.defaultFS</name> 
+                <value>hdfs://nodo1:9000</value> 
+        </property> 
+</configuration>
+
+
+
+10.3 Abrir puerto 9000
+Ejecutar
+firewall-cmd –zone=public  --add-port=9000/tcp --permanent
+recargar el firewall
+firewall-cmd –reload
+11. Configurando hdfs-site.xml y creando la carpeta datos (Video 17) 
+https://www.youtube.com/watch?v=eIYX_IXVoU0&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=17
+Para configurar el archivo hdfs-site.xml, debemos definir el factor de replicación. Como 
+estás trabajando en tu propia computadora (un solo nodo).
+Sigue estos pasos como usuario hadoop:
+ 
+11.1 Editar el archivo hdfs-site.xml
+Abre el archivo de configuración:
+vi /opt/hadoop/etc/hadoop/Hadoop-3.4.0/etc/hdfs-site.xml
+
+
+Copia y pega lo siguiente entre las etiquetas <configuration>:
+
+<configuration> 
+    <property> 
+        <name>dfs.replication</name> 
+        <value>1</value> 
+    </property> 
+    <property> 
+        <name>dfs.namenode.name.dir</name> 
+        <value>/datos/namenode</value> 
+    </property> 
+    <property> 
+        <name>dfs.datanode.data.dir</name> 
+        <value>/datos/datanode</value> 
+    </property> 
+</configuration>
+
+
+
+
+
+
+11.2 Crear las carpetas de datos
+Esto es lo que Hadoop llama el "almacenamiento físico" de los datos:
+Revisa que estes en la raíz del sistema con el comando 
+Cd .. 
+pwd
+
+
+
+Crear la estructura de directorios
+mkdir datos 
+cd /datos/ 
+mkdir namenode 
+mkdir datanode
+
+
+
+Asegurar que el usuario hadoop sea el dueño 
+chown -R hadoop:hadoop /datos
+
+
+
+
+
+
+
+
+
+
+
+
+
+13. Formatear el NameNode (Video #18) 
+https://www.youtube.com/watch?v=rJFrPBtciXY&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=18
+Este comando inicializa el directorio de metadatos que configuramos en el paso anterior.
+hadoop namenode -format
+
+
+Puedes ocupar también este comando en las versiones mas recientes de hadoop
+hdfs namenode -format
+
+Si ves un error de "Command not found", revisa que tu .bashrc tenga bien configurado el PATH 
+y hayas hecho source ~/.bashrc.
+ 
+13.1 Iniciar los servicios de HDFS
+Una vez formateado, vamos a levantar los "demons" (servicios) del sistema de archivos. 
+Hadoop incluye scripts automáticos para esto:
+start-dfs.sh
+
+
+
+Al ejecutarlo, la terminal te informará que está iniciando:
+1.	NameNode (en nodo1)
+2.	DataNodes (en nodo1)
+3.	Secondary NameNodes (en 0.0.0.0 o nodo1)
+ 
+13.2 Verificar que los procesos están corriendo
+Para confirmar que Hadoop está vivo, usa el comando de Java jps (Java Virtual Machine 
+Process Status Tool):
+jps
+
+Deberías ver una lista como esta:
+•	NameNode
+•	DataNode
+•	SecondaryNameNode
+•	Jps (el comando que acabas de ejecutar)
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14. Prueba de fuego: La Interfaz Web Browse Directory (Video HDFS Hadoop #1) 
+https://www.youtube.com/watch?v=38DgYWd7fYg&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=19
+Hadoop 3 tiene una interfaz gráfica muy útil. Si estás en una máquina con interfaz visual o 
+puedes acceder desde tu navegador en Windows/Mac (usando la IP de tu CentOS), abre:
+URL: http://localhost:9870 o http://tu_ip_de_centos:9870
+Aquí podrás ver el estado de tu cluster, cuánto espacio tienes y navegar por los archivos.
+
+En la versiones anteriores y en el video el puerto que se usa es el 50070
+ 
+
+
+
+
+
+
+
+
+
+
+
+15. Crear tu primera carpeta en HDFS (Video HDFS Hadoop #2.1) 
+https://www.youtube.com/watch?v=PtcoKR9x0t0&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=20
+Se va a crear un archivo de prueba por lo que se crea un archivo:
+echo Hola Mundo Hadoop HDFS >> prueba.txt
+
+Recuerda que HDFS es un sistema "virtual". Para crear una carpeta dentro de Hadoop (no en 
+tu Linux normal), usa:
+hdfs dfs -mkdir /prueba 
+hdfs dfs -ls /
+
+
+
+Agregar el archivo prueba.txt a la carpeta HDFS prueba
+hdfs dfs -put prueba.txt /prueba
+
+
+desde el Browser Directory se puede consultar los archivos http://localhost:9870
+
+
+
+
+
+
+
+
+
+
+
+
+15.1 Borrar archivos HDFS
+Para borrar carpetas o archivos dentro del sistema de archivos distribuido de Hadoop (HDFS), 
+debes usar el comando hdfs dfs -rm. Ten en cuenta que esto es diferente a borrar carpetas 
+normales de Linux con rm -rf.
+Aquí tienes los comandos principales:
+•	Borrar una carpeta vacía
+Si la carpeta no tiene archivos dentro:
+hdfs dfs -rmdir /ruta/de/la/carpeta
+
+•	Borrar una carpeta con todo su contenido (Recursivo)
+Este es el comando más común, equivalente al rm -rf de Linux. Se usa la opción -r:
+hdfs dfs -rm -r /ruta/de/la/carpeta
+
+•	Borrar omitiendo la "Papelera" (Permanente)
+Por defecto, Hadoop suele mover los archivos borrados a una carpeta llamada .Trash. Si 
+quieres borrarlos permanentemente para liberar espacio de inmediato, usa -skipTrash:
+hdfs dfs -rm -r -skipTrash /ruta/de/la/carpeta
+
+ 
+Ejemplos prácticos:
+•	Para borrar la carpeta "prueba" que creamos antes:
+hdfs dfs -rm -r /prueba
+
+•	Para verificar que se borró:
+hdfs dfs -ls /
+
+
+
+
+
+16. Configuración de Yarn (Video MapReduce con Hadoop #1: Configuración de Yarn) 
+https://www.youtube.com/watch?v=R7w8FAlnhAw&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=23
+Ahora que el sistema de archivos (HDFS) está funcionando, necesitamos configurar YARN 
+(Yet Another Resource Negotiator). YARN es el "sistema operativo" de Hadoop: se encarga de 
+administrar los recursos (RAM y CPU) y de decidir qué nodo ejecutará cada tarea.
+Para un cluster de un solo nodo en tu computadora personal, sigue estos pasos como 
+usuario hadoop:
+ 
+16.1 Configurar mapred-site.xml
+Este archivo le dice a Hadoop que utilizaremos el framework de YARN para ejecutar trabajos 
+de MapReduce.
+Abre el archivo:
+vi /opt/hadoop/etc/hadoop/Hadoop-3.4.0/etc/mapred-site.xml
+
+Añade esto entre las etiquetas <configuration>:
+
+<configuration> 
+        <property> 
+                <name>yarn.resourcemanager.hostname</name> 
+                 <value>nodo1</value> 
+         </property> 
+         <property> 
+                 <name>yarn.nodemanager.aux-services</name> 
+                 <value>mapreduce_shuffle</value> 
+         </property> 
+         <property> 
+                 <name>yarn.nodemanager.aux-
+services.mapreduce_shuffle.class</name> 
+                 
+<value>org.apache.hadoop.mapred.ShuffleHandler</value> 
+         </property> 
+</configuration>
+
+
+16.2 Configurar yarn-site.xml
+Aquí definimos cómo se comportará el administrador de recursos en nuestro nodo1.
+Abre el archivo:
+vi /opt/hadoop/etc/hadoop/Hadoop-3.4.0/etc/yarn-site.xml
+Añade lo siguiente:
+<configuration> 
+<!-- Site specific YARN configuration properties --> 
+        <property> 
+                <name>yarn.resourcemanager.hostname</name> 
+                <value>nodo1</value> 
+        </property> 
+        <property> 
+                <name>yarn.nodemanager.aux-services</name> 
+                <value>mapreduce_shuffle</value> 
+        </property> 
+        <property> 
+                <name>yarn.nodemanager.aux-
+services.mapreduce_shuffle.class</name> 
+                
+<value>org.apache.hadoop.mapred.ShuffleHandler</value> 
+        </property> 
+        <property> 
+                <name>yarn.resourcemanager.webapp.address</name> 
+                <value>0.0.0.0:8088</value> 
+        </property> 
+ 
+        <property> 
+                <name>yarn.nodemanager.vmem-check-enabled</name> 
+                <value>false</value> 
+        </property> 
+ 
+</configuration>
+
+
+
+
+
+
+16.3 Iniciar los servicios de YARN
+Primero se debe de detener los servicios de hdfs:
+stop-dfs.sh
+
+
+Iniciar el servicio nuevamente de hdfs
+start-dfs.sh
+
+
+
+Una vez guardados los cambios, levanta los demons de gestión de recursos:
+start-yarn.sh
+
+
+
+16.4 Verificar con jps
+Ahora, al ejecutar el comando jps, tu lista de procesos debería haber crecido. Deberías ver:
+•	NameNode, DataNode, SecondaryNameNode (de HDFS)
+•	ResourceManager (el cerebro de YARN)
+•	NodeManager (el que vigila los recursos en el nodo)
+
+
+
+
+
+ 
+
+
+
+16.5 Acceder al Monitor de YARN (Video MapReduce con Hadoop #2) 
+https://www.youtube.com/watch?v=dUVMBs1-ZHc&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=24
+YARN tiene su propia interfaz web donde podrás ver cuánta RAM está libre y qué aplicaciones 
+se están ejecutando desde el web browser.
+http://localhost:8088/cluster/ 
+o 
+http://tu_ip_de_centos:8088/cluster/
+
+
+ 
+Resumen de comandos de inicio/cierre
+A partir de ahora, para encender todo tu cluster de un solo golpe, puedes usar:
+•	start-all.sh (Inicia HDFS y YARN)
+•	stop-all.sh (Apaga todo de forma segura)
+
+
+
+
+
+
+
+
+17. Usar Map Reduce (Video MapReduce con Hadoop #3)
+https://www.youtube.com/watch?v=woUzV_liwto&list=PLG1t8jaLbxA_DG_cmlBYgkGW-
+TZw5DP3B&index=25
+17.1 Preparar los datos de entrada
+Primero, necesitamos un archivo de texto en nuestro Linux local para subirlo al cluster 
+(Descargar Archivo).
+Crear una carpeta de entrada en HDFS
+hdfs dfs -mkdir /libros
+
+
+Subir el archivo de Linux a HDFS
+hdfs dfs -put Los_Miserables.txt /libros
+
+
+17.2 Ejecutar el Job de MapReduce
+Ahora llamaremos al motor de Java para que procese el archivo. El archivo de ejemplos suele 
+estar en la carpeta share de tu instalación.
+Entrar a la ruta:
+cd /opt/hadoop/hadoop-3.4.0/share/hadoop/mapreduce/
+
+Ejecutar el conteo de palabras
+hadoop jar hadoop-mapreduce-examples-3.4.0.jar wordcount /libros 
+/libros_salida
+
+ 
+17.3 ¿Qué está pasando internamente?
+1.	Map: El programa divide el texto y asigna un "1" a cada palabra encontrada: (Hadoop, 
+1), (Hadoop, 1).
+2.	Shuffle: YARN agrupa las palabras iguales: (Hadoop, [1, 1]).
+3.	Reduce: Suma los valores: (Hadoop, 2).
+17.4 Revisar los resultados
+Si el proceso terminó con éxito, verás una carpeta llamada /user/hadoop/output. Nota: 
+MapReduce nunca sobreescribe carpetas; si quieres correrlo de nuevo, debes borrar la 
+carpeta output primero.
+Listar los archivos generados
+hdfs dfs -ls /libros_salida
+
+Ver el contenido del resultado
+hdfs dfs -cat /libros_salida/part-r-00000
+
+
+Deberías ver algo como:
+zinc	900 
+zinc,	300 
+zinc.	300 
+zip	300 
+zodiac	300 
+zodiac.	300 
+zone	900 
+{EDITOR'S	300 
+{GRAPHIC	300 
+|	10800
+
+
+
+
+
+
+ 
+
+
+Tips de monitoreo
+Mientras el comando se ejecuta, entra a http://localhost:8088 en tu navegador. Verás una 
+nueva fila en la tabla de aplicaciones que dice WordCount en estado RUNNING y luego 
+FINISHED.
+¡Felicidades! Has instalado, configurado y ejecutado con éxito tu primer proceso de Big Data 
+en un nodo propio.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Apache Hive 3.1.3 sobre Hadoop 3.4.0.
+ 
+1. Preparación del Entorno (Nivel Operativo)
+En esta fase, descargamos el software y preparamos el sistema de archivos de Linux 
+(CentOS). Es fundamental gestionar los permisos correctamente para evitar fallos de 
+seguridad.
+Comandos de Instalación
+cd /opt
+ Descarga de la versión estable 3.1.3
+wget https://archive.apache.org/dist/hive/hive-3.1.3/apache-hive-
+3.1.3-bin.tar.gz
+ Descompresión y organización
+tar -zxvf apache-hive-3.1.3-bin.tar.gz 
+mv apache-hive-3.1.3-bin /opt/hive
+ Asignación de propiedad al usuario del ecosistema
+chown -R hadoop:hadoop /opt/hive
+ 
+2. Configuración de Variables (Nivel Sistema)
+Las variables de entorno permiten que los binarios de Hive sean accesibles globalmente y 
+que el motor sepa dónde residen sus dependencias.
+Edición de Perfil
+su - hadoop 
+vi ~/.bashrc
+Contenido a agregar:
+export HIVE_HOME=/opt/hive 
+export PATH=$PATH:$HIVE_HOME/bin
+
+No olvides ejecutar source ~/.bashrc para aplicar los cambios.
+ 
+
+
+
+3. Resolución de Conflictos de Librerías
+Uno de los retos más comunes en Big Data es la incompatibilidad de versiones entre 
+herramientas del mismo ecosistema (Hadoop vs. Hive).
+El Fix de Guava
+Hive 3.1.3 incluye una versión antigua de Guava que choca con Hadoop 3.4.0. Debemos 
+homogeneizarla:
+Eliminar librería obsoleta de Hive
+rm /opt/hive/lib/guava-19.0.jar
+Copiar la versión funcional desde Hadoop
+cp /opt/hadoop/share/hadoop/common/lib/guava-*.jar /opt/hive/lib/
+ 
+4. Configuración del Almacenamiento (HDFS)
+Hive es una capa lógica; los datos "viven" realmente en el sistema de archivos distribuido de 
+Hadoop.
+Creación de Directorios Críticos
+Carpeta para procesos temporales y almacenamiento de tablas
+hdfs dfs -mkdir -p /tmp 
+hdfs dfs -mkdir -p /user/hive/warehouse
+Permisos globales de escritura (Write) para el grupo
+hdfs dfs -chmod g+w /tmp 
+hdfs dfs -chmod g+w /user/hive/warehouse
+ 
+5. El Metastore y la Capa de Datos (hive-site.xml)
+El archivo hive-site.xml define cómo Hive gestiona sus metadatos (nombres de tablas, 
+columnas, tipos de datos).
+Configuración de Derby (Base de Datos Embebida)
+<configuration> 
+   <property> 
+      <name>javax.jdo.option.ConnectionURL</name> 
+      
+<value>jdbc:derby:;databaseName=metastore_db;create=true</value> 
+   </property> 
+   <property> 
+      <name>hive.metastore.warehouse.dir</name> 
+      <value>/user/hive/warehouse</value> 
+   </property> 
+</configuration>
+
+Inicialización del Esquema
+Antes de iniciar, debemos "formatear" la base de datos de metadatos:
+schematool -initSchema -dbType derby
+ 
+6. Ejecución y Pruebas (HiveQL)
+Finalmente, accedemos a la consola para transformar el almacenamiento de archivos en un 
+sistema relacional de tablas.
+Comandos SQL de Prueba
+Entrar a la consola
+hive
+Crear tabla con formato delimitado (CSV)
+CREATE TABLE usuarios ( 
+    id INT,  
+    nombre STRING 
+)  
+ROW FORMAT DELIMITED  
+FIELDS TERMINATED BY ',';
+Inserción y Consulta (Traduce a MapReduce)
+INSERT INTO usuarios VALUES (1, 'Gemini'), (2, 'Hadoop'), (3, 
+'Spark'), (4, 'Kafka'), (5, 'Flink'), (6, 'HBase'); 
+SELECT * FROM usuarios WHERE nombre = 'Gemini';
+•	Filtrar por ID específico:
+SELECT * FROM usuarios WHERE id > 3;
+•	Buscar nombres que contengan una letra (LIKE):
+SELECT * FROM usuarios WHERE nombre LIKE 'H%';
+•	Ordenar los resultados:
+SELECT * FROM usuarios ORDER BY id DESC;
+
+ 
+3. ¿Dónde se guardan estos datos físicamente?
+Cada vez que haces un INSERT, Hive guarda la información en tu cluster de Hadoop. Puedes 
+ver los archivos reales que se han creado saliendo de Hive y ejecutando en tu terminal de 
+CentOS:
+hdfs dfs -ls /user/hive/warehouse/usuarios
+4. Recomendación para Sistemas Inteligentes
+En entornos de Big Data, no se suelen usar muchos INSERT individuales porque son lentos. 
+Lo profesional es cargar archivos masivos (como el CSV que usamos antes).
+
+ 
+•	HiveQL: Lenguaje de consulta similar a SQL que Hive traduce a trabajos de 
+MapReduce o Tez.
+•	Metastore: Base de datos que guarda el "catálogo" (esquema) de las tablas.
+•	Warehouse: Ubicación física en HDFS donde se guardan los datos de las tablas de 
+Hive.
+ 

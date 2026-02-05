@@ -1,0 +1,2 @@
+Spark/data/*.csv filter=lfs diff=lfs merge=lfs -text
+Hadoop/ml-100k/*.data filter=lfs diff=lfs merge=lfs -text

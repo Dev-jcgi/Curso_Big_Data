@@ -1,0 +1,35 @@
+# Archivos de datos grandes (descargar desde Google Drive)
+Spark/data/*.csv
+Spark/data/*.part*
+Spark/data/*.zip
+Hadoop/ml-100k/*.data
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.ipynb_checkpoints/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos temporales
+*.tmp
+*.bak
