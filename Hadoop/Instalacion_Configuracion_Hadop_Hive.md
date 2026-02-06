@@ -1,4 +1,4 @@
-# 🚀 Guía Completa: CentOS + Hadoop 3.4.0 + Hive 3.1.3
+# 🚀 Instalación: CentOS + Hadoop 3.4.0 + Hive 3.1.3
 
 > **Curso:** Sistemas Inteligentes
 > **Objetivo:** Configurar un entorno Big Data completo desde cero
@@ -333,11 +333,11 @@ sudo visudo
 
 **💡 Explicación de Opciones:**
 
-| Opción                              | Seguridad | Uso                   | Requiere Password |
-| ----------------------------------- | --------- | --------------------- | ----------------- |
-| **Opción 1** (wheel)              | Media     | Desarrollo/Producción| ✅ Sí            |
-| **Opción 2** (NOPASSWD: ALL)      | Baja      | Solo desarrollo       | ❌ No             |
-| **Opción 3** (comandos específicos)| Alta      | Producción           | ❌ No             |
+| Opción                                     | Seguridad | Uso                    | Requiere Password |
+| ------------------------------------------- | --------- | ---------------------- | ----------------- |
+| **Opción 1** (wheel)                 | Media     | Desarrollo/Producción | ✅ Sí            |
+| **Opción 2** (NOPASSWD: ALL)         | Baja      | Solo desarrollo        | ❌ No             |
+| **Opción 3** (comandos específicos) | Alta      | Producción            | ❌ No             |
 
 **✅ Verificar permisos:**
 
@@ -960,17 +960,18 @@ vi /opt/hadoop/hadoop-3.4.0/etc/hadoop/hdfs-site.xml
 **💡 Explicación de la Configuración:**
 
 - **`dfs.replication`**: Número de réplicas de cada bloque de datos en HDFS
+
   - Valor `1`: Solo una copia (apropiado para entorno de un solo nodo)
   - En clusters reales se usa `3` para alta disponibilidad
   - Más réplicas = mayor tolerancia a fallos, pero más espacio usado
-
 - **`dfs.namenode.name.dir`**: Directorio donde el NameNode almacena metadatos
+
   - `/datos/namenode`: Ruta física en el disco local
   - Contiene información sobre la estructura de archivos HDFS
   - **Crítico**: Si se pierde, se pierde toda la información de HDFS
   - En producción se recomienda usar múltiples directorios para redundancia
-
 - **`dfs.datanode.data.dir`**: Directorio donde el DataNode almacena los bloques de datos
+
   - `/datos/datanode`: Ruta física para almacenamiento de datos
   - Aquí se guardan los bloques reales de archivos (datos)
   - Puede configurarse con múltiples directorios separados por comas para usar varios discos
@@ -1225,15 +1226,16 @@ vi /opt/hadoop/hadoop-3.4.0/etc/hadoop/mapred-site.xml
 **💡 Explicación de la Configuración:**
 
 - **`yarn.resourcemanager.hostname`**: Especifica el host donde corre el ResourceManager de YARN
+
   - Valor `nodo1`: Nombre del nodo que gestionará los recursos del cluster
   - YARN necesita saber dónde está el ResourceManager para coordinar jobs
-
 - **`yarn.nodemanager.aux-services`**: Servicios auxiliares que ejecuta cada NodeManager
+
   - Valor `mapreduce_shuffle`: Habilita el servicio de shuffle para MapReduce
   - Shuffle: Fase donde se redistribuyen datos entre Map y Reduce
   - Esencial para que MapReduce funcione correctamente
-
 - **`yarn.nodemanager.aux-services.mapreduce_shuffle.class`**: Clase Java que implementa el servicio de shuffle
+
   - `org.apache.hadoop.mapred.ShuffleHandler`: Manejador oficial de Apache
   - Gestiona la transferencia de datos entre mappers y reducers
 
@@ -1283,21 +1285,22 @@ vi /opt/hadoop/hadoop-3.4.0/etc/hadoop/yarn-site.xml
 **💡 Explicación de la Configuración:**
 
 - **`yarn.resourcemanager.hostname`**: Host del ResourceManager (cerebro de YARN)
+
   - Coordina la asignación de recursos (CPU, memoria) a las aplicaciones
   - Todos los NodeManagers se comunican con él
-
 - **`yarn.nodemanager.aux-services`**: Servicios auxiliares para MapReduce
+
   - `mapreduce_shuffle`: Permite la fase de shuffle en jobs MapReduce
   - Sin esto, los jobs MapReduce fallarán
-
 - **`yarn.nodemanager.aux-services.mapreduce_shuffle.class`**: Implementación del shuffle
-  - Define qué clase Java maneja el intercambio de datos
 
+  - Define qué clase Java maneja el intercambio de datos
 - **`yarn.resourcemanager.webapp.address`**: Puerto de la interfaz web de YARN
+
   - `0.0.0.0:8088`: Escucha en todas las interfaces en el puerto 8088
   - Permite monitorear jobs y recursos desde http://localhost:8088
-
 - **`yarn.nodemanager.vmem-check-enabled`**: Desactiva verificación de memoria virtual
+
   - Valor `false`: Evita errores por exceso de memoria virtual
   - En entornos de desarrollo previene problemas de límites de memoria
   - En producción se recomienda `true` para mejor control de recursos
@@ -1659,22 +1662,23 @@ nano /opt/hive/conf/hive-site.xml
 **💡 Explicación de la Configuración:**
 
 - **`javax.jdo.option.ConnectionURL`**: URL de conexión a la base de datos del metastore
+
   - `jdbc:derby:`: Usa Apache Derby (base de datos embebida en Java)
   - `databaseName=metastore_db`: Nombre de la base de datos para metadatos
   - `create=true`: Crea la base de datos automáticamente si no existe
   - El metastore guarda información sobre tablas, columnas, particiones, etc.
   - **Nota**: Derby es solo para desarrollo; en producción usar MySQL/PostgreSQL
-
 - **`hive.metastore.warehouse.dir`**: Directorio raíz en HDFS donde Hive almacena datos de tablas
+
   - `/user/hive/warehouse`: Ubicación predeterminada
   - Cada tabla creará un subdirectorio aquí
   - Ejemplo: tabla `usuarios` estará en `/user/hive/warehouse/usuarios`
-
 - **`hive.metastore.uris`**: URI del servicio metastore (vacío para modo embebido)
+
   - Vacío: Metastore embebido (corre en el mismo proceso que Hive)
   - En producción se configura un metastore remoto para compartir entre usuarios
-
 - **`hive.server2.enable.doAs`**: Suplantación de identidad de usuario
+
   - `false`: Todas las operaciones se ejecutan como el usuario que inició Hive
   - `true`: Cada usuario ejecutaría operaciones con su propia identidad
   - En desarrollo `false` simplifica la configuración
@@ -2144,9 +2148,9 @@ hdfs dfs -chmod g-w /user/hive/warehouse
 Una vez completada esta guía, puedes continuar con:
 
 1. **Práctica con Dataset Real:**
+
    - Consulta: `Practica_Hadoop_Hive_MovieLens.md`
    - Dataset: MovieLens 100K (100,000 ratings)
-
 2. **Integración con Spark:**
 
    - Instalar Apache Spark sobre Hadoop

@@ -1,4 +1,4 @@
-# 🎬 Guía Práctica: Hadoop 3.4.0 + Hive 3.3.1 con Dataset MovieLens
+# 🎬 Práctica: Hive 3.3.1 con Dataset MovieLens
 
 > **Análisis de Ratings de Películas con 100,000 Registros Reales**
 
@@ -36,6 +36,7 @@ sleep 15
 ```
 
 > **💡 Comandos útiles:**
+>
 > - **Iniciar todo:** `start-all.sh`
 > - **Detener todo:** `stop-all.sh`
 
@@ -61,13 +62,13 @@ jps
 
 **💡 Explicación de los Servicios:**
 
-| Servicio                    | Tipo      | Responsabilidad                                            |
-| --------------------------- | --------- | ---------------------------------------------------------- |
-| **NameNode**          | HDFS      | Administra metadatos (nombres, ubicación de bloques)      |
-| **DataNode**          | HDFS      | Almacena bloques de datos reales                           |
-| **SecondaryNameNode** | HDFS      | Realiza checkpoints del NameNode                           |
-| **ResourceManager**   | YARN      | Gestiona recursos del cluster (CPU, RAM) y distribuye jobs |
-| **NodeManager**       | YARN      | Ejecuta contenedores con tasks MapReduce                   |
+| Servicio                    | Tipo | Responsabilidad                                            |
+| --------------------------- | ---- | ---------------------------------------------------------- |
+| **NameNode**          | HDFS | Administra metadatos (nombres, ubicación de bloques)      |
+| **DataNode**          | HDFS | Almacena bloques de datos reales                           |
+| **SecondaryNameNode** | HDFS | Realiza checkpoints del NameNode                           |
+| **ResourceManager**   | YARN | Gestiona recursos del cluster (CPU, RAM) y distribuye jobs |
+| **NodeManager**       | YARN | Ejecuta contenedores con tasks MapReduce                   |
 
 > **✅ CHECKPOINT:** Si ves los 5 servicios, puedes continuar al siguiente paso.
 

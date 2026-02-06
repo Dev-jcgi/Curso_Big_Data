@@ -1,4 +1,4 @@
-# 🚀 Guía Definitiva: Hadoop 3.4.0 + Hive 3.3.1
+# 🚀 Practica basica: Hadoop 3.4.0 + Hive 3.3.1
 
 > **Análisis de Ventas con Solución Completa de Errores Comunes**
 
