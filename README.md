@@ -202,12 +202,6 @@ Material para aprender Apache Spark y compararlo con Pandas:
 - **Spark:** https://spark.apache.org/docs/latest/
 - **PySpark:** https://spark.apache.org/docs/latest/api/python/
 
-### Interfaces Web (Hadoop)
-
-- HDFS NameNode: http://localhost:9870
-- YARN ResourceManager: http://localhost:8088
-- MapReduce JobHistory: http://localhost:19888
-
 ### Tutoriales Complementarios
 
 - [Hive Tutorial (ES)](https://aitor-medrano.github.io/iabd2223/hadoop/06hive.html)
@@ -216,6 +210,9 @@ Material para aprender Apache Spark y compararlo con Pandas:
 - [Hadoop-Hive Integration](https://www.aptech.com/resources/tutorials/hadoop-hive-integration-tutorial/)
 - [Hadoop en CentOS](https://www.tutorialspoint.com/how-to-install-and-configure-apache-hadoop-on-a-single-node-in-centos-8)
 - [Spark Quick Guide](https://www-tutorialspoint-com.translate.goog/apache_spark/apache_spark_quick_guide.htm)
+- [Apache Spark con HDFS, Hive y Hadoop - Práctica Completa (Parte 1)](https://tariqul-islam-rony.medium.com/apache-spark-with-hdfs-hive-and-hadoop-code-practice-part-1-7ad9b91b5afa) - Tutorial práctico que cubre la configuración e integración de Spark con HDFS y Hive, incluyendo ejemplos de código con PySpark
+- [Vagrant Hadoop-Hive-Spark](https://github.com/martinprobson/vagrant-hadoop-hive-spark) - Proyecto Vagrant para crear un entorno de desarrollo con Hadoop 2.7.6, Hive 2.3.3 y Spark 2.3.0 en una VM, ideal para práctica local
+- [Hadoop Practice Labs (77 Ejercicios)](https://github.com/labex-labs/hadoop-practice-labs) - Colección de 77 laboratorios prácticos interactivos cubriendo HDFS, YARN, MapReduce y Hive con entornos de aprendizaje guiados
 
 ### Videos Educativos
 
