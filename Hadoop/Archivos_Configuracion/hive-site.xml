@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <!-- Configuración de Metastore con Derby -->
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:derby:;databaseName=metastore_db;create=true</value>
+        <description>URL de conexión a la base de datos Derby embebida</description>
+    </property>
+  
+    <!-- Directorio warehouse en HDFS -->
+    <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>/user/hive/warehouse</value>
+        <description>Ubicación del warehouse en HDFS</description>
+    </property>
+  
+    <!-- Configuración adicional -->
+    <property>
+        <name>hive.metastore.uris</name>
+        <value/>
+        <description>URI del metastore (vacío para modo embebido)</description>
+    </property>
+  
+    <property>
+        <name>hive.server2.enable.doAs</name>
+        <value>false</value>
+        <description>Deshabilitar suplantación de usuario</description>
+    </property>
+</configuration>
